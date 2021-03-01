@@ -20,9 +20,7 @@ async function getEachRole(req, res, next) {
 
 async function addRole(req, res, next) {
   const newRole = new Role({
-    name: req.body.name,
-    created_at: req.body.created_at,
-    updated_at: req.body.updated_at,
+    name: req.body.name
   });
   try {
     const createdRole = await newRole.save();
@@ -35,9 +33,7 @@ async function addRole(req, res, next) {
 async function updateRole(req, res, next) {
   try {
     const updatePatient = await Role.findById(req.params.id);
-    (updatePatient.name = req.body.name),
-      (updatePatient.updated_at = req.body.updated_at);
-
+    (updatePatient.name = req.body.name);
     const patient = await updatePatient.save();
     res.json(patient);
   } catch (error) {
