@@ -32,7 +32,6 @@ const dotenv = require('dotenv').config(),
    * Add API routes
    */
   app.use('/api/roles', require('./routes/roleRoutes'));
-  // app.use('/api/patients', require('./api/patients'));
 
   /**
    * Start Express!
