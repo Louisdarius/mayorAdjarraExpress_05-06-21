@@ -5,7 +5,9 @@ const Appointment = require('../models/appointmentModel');
  */
 async function getAllAppointments(req, res, next) {
   try {
-    const appointments = await Appointment.find().populate('user');
+    const appointments = await Appointment.find().populate(
+      'user adminUser.user'
+    );
     res.json(appointments);
   } catch (error) {
     next(error);
@@ -16,7 +18,7 @@ async function getAllAppointmentsProfile(req, res, next) {
   try {
     const appointments = await Appointment.find({
       user: req.user._id,
-    }).populate('user');
+    }).populate('user adminUser.user');
     res.json(appointments);
   } catch (error) {
     next(error);
@@ -32,7 +34,7 @@ async function getEachAppointment(req, res, next) {
     const appointment = await Appointment.findOne({
       _id,
       user: req.user._id,
-    }).populate('user');
+    }).populate('user adminUser.user');
     res.json(appointment);
   } catch (error) {
     next(error);
@@ -42,7 +44,7 @@ async function getEachAppointment(req, res, next) {
 async function getEachAppointmentProfile(req, res, next) {
   try {
     const appointment = await Appointment.findById(req.params.id).populate(
-      'user'
+      'user adminUser.user'
     );
     res.json(appointment);
   } catch (error) {
@@ -57,7 +59,7 @@ async function addAppointment(req, res, next) {
   const newAppointment = new Appointment({ ...req.body, user: req.user._id });
   try {
     const createdAppointment = await newAppointment.save();
-    await createdAppointment.populate('user').execPopulate();
+    await createdAppointment.populate('user adminUser.user').execPopulate();
     res.json(createdAppointment);
   } catch (error) {
     next(error);
@@ -79,7 +81,7 @@ async function updateAppointment(req, res, next) {
         user: req.user._id,
       }));
     const patient = await updatePatient.save();
-    await patient.populate('user').execPopulate();
+    await patient.populate('user adminUser.user').execPopulate();
     res.json(patient);
   } catch (error) {
     next(error);
@@ -101,7 +103,7 @@ async function updateAppointmentProfile(req, res, next) {
         user: req.user._id,
       }));
     const patient = await updatePatient.save();
-    await patient.populate('user').execPopulate();
+    await patient.populate('user adminUser.user').execPopulate();
     res.json(patient);
   } catch (error) {
     next(error);
