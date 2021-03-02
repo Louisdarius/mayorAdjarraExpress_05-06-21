@@ -1,5 +1,8 @@
 const Role = require('../models/roleModel');
 
+/**
+ * Gett all roles controller
+ */
 async function getAllRoles(req, res, next) {
   try {
     const roles = await Role.find();
@@ -9,6 +12,9 @@ async function getAllRoles(req, res, next) {
   }
 }
 
+/**
+ * Get a specific role controller
+ */
 async function getEachRole(req, res, next) {
   try {
     const role = await Role.findById(req.params.id);
@@ -18,10 +24,11 @@ async function getEachRole(req, res, next) {
   }
 }
 
+/**
+ * Add a role controller
+ */
 async function addRole(req, res, next) {
-  const newRole = new Role({
-    name: req.body.name
-  });
+  const newRole = new Role(req.body);
   try {
     const createdRole = await newRole.save();
     res.json(createdRole);
@@ -30,10 +37,13 @@ async function addRole(req, res, next) {
   }
 }
 
+/**
+ * Update a role controller
+ */
 async function updateRole(req, res, next) {
   try {
     const updatePatient = await Role.findById(req.params.id);
-    (updatePatient.name = req.body.name);
+    updatePatient.name = req.body.name;
     const patient = await updatePatient.save();
     res.json(patient);
   } catch (error) {
@@ -41,6 +51,9 @@ async function updateRole(req, res, next) {
   }
 }
 
+/**
+ * Delete a role controller
+ */
 async function deleteRole(req, res, next) {
   try {
     const deleteRole = await Role.findByIdAndRemove(req.params.id);
