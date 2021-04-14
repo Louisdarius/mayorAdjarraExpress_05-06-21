@@ -12,11 +12,21 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: true,
+      enum: ['pending', 'approved', 'disapproved'],
+      default: 'pending',
+    },
+    meetingPref: {
+      type: String,
+      trim: true,
     },
     description: {
       type: String,
       trim: true,
       required: true,
+    },
+    notes: {
+      type: String,
+      trim: true,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -32,6 +42,10 @@ const appointmentSchema = new mongoose.Schema(
         notes: {
           type: String,
           trim: true,
+        },
+        updatedAt: {
+          type: Date,
+          default: Date.now,
         },
       },
     ],

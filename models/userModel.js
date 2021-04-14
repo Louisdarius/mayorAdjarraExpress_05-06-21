@@ -16,6 +16,25 @@ const userSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
+    gender: {
+      type: String,
+      trim: true,
+      required: true,
+      enum: ['Male', 'Femalle'],
+    },
+    status: {
+      type: String,
+      trim: true,
+      required: true,
+      enum: ['actif', 'inactif'],
+      default: 'actif',
+    },
+    userLogo: {
+      type: Buffer,
+    },
+    verificationCode: {
+      type: String,
+    },
     email: {
       type: String,
       trim: true,
@@ -33,15 +52,15 @@ const userSchema = new mongoose.Schema(
       trim: true,
       required: true,
       minlength: 8,
-      validate(value) {
+      validate(value, res) {
         if (value.toLowerCase().includes('password')) {
           throw new Error('Password cannot contain "password"');
         }
       },
     },
     tel: {
-      type: Number,
-      required: false,
+      type: String,
+      trim: true,
     },
     tokens: [
       {
@@ -69,6 +88,7 @@ userSchema.methods.toJSON = function () {
 
   delete userObject.password;
   delete userObject.tokens;
+  delete userObject.userLogo;
 
   return userObject;
 };
@@ -92,6 +112,10 @@ userSchema.methods.generateAuthToken = async function () {
  */
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
+
+  if (user.status !== 'actif') {
+    throw new Error('user is not active');
+  }
 
   if (!user) {
     throw new Error('Unable to login Email');

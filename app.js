@@ -2,6 +2,8 @@ const dotenv = require('dotenv').config(),
   express = require('express'),
   mongoose = require('mongoose'),
   bodyParser = require('body-parser'),
+  fileUpload = require('express-fileupload'),
+  cors = require('cors'),
   app = express();
 
 // seed();
@@ -10,8 +12,12 @@ const dotenv = require('dotenv').config(),
   /**
    * Connect to the database
    */
+  const LOCAL_URL = 'mongodb://localhost:27017/appointment';
+  const URL =
+    'mongodb+srv://lawyerExpertUser:lawyerExpertUserPass@2021@cluster0.xrtgm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
+    await mongoose.connect(LOCAL_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
@@ -27,18 +33,27 @@ const dotenv = require('dotenv').config(),
    * Add middlewares
    */
   app.use(bodyParser.json());
+  app.use(cors());
+  app.use(express.static('public'));
+  app.use(fileUpload());
 
   /**
    * Add API routes
    */
+  app.use('', require('./routes/mainRoutes'));
   app.use('/api/roles', require('./routes/roleRoutes'));
   app.use('/api/users', require('./routes/userRoutes'));
   app.use('/api/appointments', require('./routes/appointmentRoutes'));
+  app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
+  app.use('/api/feedbackList', require('./routes/feedbackListRoutes'));
+  app.use('/api/news', require('./routes/newsListRoutes'));
+  app.use('/api/preferences', require('./routes/preferenceListRoutes'));
 
   /**
    * Start Express!
    */
-  app.listen(process.env.PORT, () =>
-    console.log(`Server listening on http://localhost:${process.env.PORT}`)
+  const port = process.env.PORT || 5000;
+  app.listen(port, () =>
+    console.log(`Server listening on http://localhost:${port}`)
   );
 })();

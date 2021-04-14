@@ -1,7 +1,7 @@
 const Role = require('../models/roleModel');
 
 /**
- * Gett all roles controller
+ * Get all roles controller
  */
 async function getAllRoles(req, res, next) {
   try {
@@ -42,10 +42,10 @@ async function addRole(req, res, next) {
  */
 async function updateRole(req, res, next) {
   try {
-    const updatePatient = await Role.findById(req.params.id);
-    updatePatient.name = req.body.name;
-    const patient = await updatePatient.save();
-    res.json(patient);
+    const role = await Role.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(role);
   } catch (error) {
     next(error);
   }

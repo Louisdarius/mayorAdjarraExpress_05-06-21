@@ -5,10 +5,35 @@ const Appointment = require('../models/appointmentModel');
  */
 async function getAllAppointments(req, res, next) {
   try {
-    const appointments = await Appointment.find().populate(
-      'user adminUser.user'
-    );
-    res.json(appointments);
+    const PER_PAGE = 50;
+    const { filter, status = null, meetingPref = null, page = 1 } = req.query;
+    // Build DB query
+    let query = {};
+
+    if (filter) {
+      query = {
+        $or: [{ user: new RegExp(filter, 'gi') }],
+      };
+    }
+    if (status) {
+      query = {
+        $or: [{ status: new RegExp(status, 'gi') }],
+      };
+    }
+    if (meetingPref) {
+      query = {
+        $or: [{ meetingPref: new RegExp(meetingPref, 'gi') }],
+      };
+    }
+    // Count results
+    const total = await Appointment.countDocuments(query);
+
+    const appointments = await Appointment.find(query)
+      //.limit(PER_PAGE)
+      //.skip((page - 1) * PER_PAGE)
+      .sort({ date: -1 })
+      .populate('user adminUser.user', 'status firstName lastName');
+    res.json({ appointments, page, perPage: PER_PAGE, total });
   } catch (error) {
     next(error);
   }
@@ -18,7 +43,7 @@ async function getAllAppointmentsProfile(req, res, next) {
   try {
     const appointments = await Appointment.find({
       user: req.user._id,
-    }).populate('user adminUser.user');
+    }).populate('user adminUser.user', 'status firstName lastName');
     res.json(appointments);
   } catch (error) {
     next(error);
@@ -28,13 +53,13 @@ async function getAllAppointmentsProfile(req, res, next) {
 /**
  * Get a specific  appointment controller
  */
+
 async function getEachAppointment(req, res, next) {
   try {
-    const _id = req.params.id;
-    const appointment = await Appointment.findOne({
-      _id,
-      user: req.user._id,
-    }).populate('user adminUser.user');
+    const appointment = await Appointment.findById(req.params.id).populate(
+      'user adminUser.user',
+      'status firstName lastName'
+    );
     res.json(appointment);
   } catch (error) {
     next(error);
@@ -43,9 +68,11 @@ async function getEachAppointment(req, res, next) {
 
 async function getEachAppointmentProfile(req, res, next) {
   try {
-    const appointment = await Appointment.findById(req.params.id).populate(
-      'user adminUser.user'
-    );
+    const _id = req.params.id;
+    const appointment = await Appointment.findOne({
+      _id,
+      user: req.user._id,
+    }).populate('user adminUser.user');
     res.json(appointment);
   } catch (error) {
     next(error);
@@ -59,7 +86,9 @@ async function addAppointment(req, res, next) {
   const newAppointment = new Appointment({ ...req.body, user: req.user._id });
   try {
     const createdAppointment = await newAppointment.save();
-    await createdAppointment.populate('user adminUser.user').execPopulate();
+    await createdAppointment
+      .populate('user adminUser.user', 'status firstName lastName')
+      .execPopulate();
     res.json(createdAppointment);
   } catch (error) {
     next(error);
@@ -71,18 +100,24 @@ async function addAppointment(req, res, next) {
  */
 async function updateAppointment(req, res, next) {
   try {
-    const updatePatient = await Appointment.findById(req.params.id);
-    (updatePatient.description = req.body.description),
-      (updatePatient.status = req.body.status),
-      (updatePatient.date = req.body.date),
-      (updatePatient.time = req.body.time),
-      (updatePatient.adminUser = updatePatient.adminUser.concat({
-        notes: req.body.notes,
-        user: req.user._id,
-      }));
-    const patient = await updatePatient.save();
-    await patient.populate('user adminUser.user').execPopulate();
-    res.json(patient);
+    const appointmentUpdate = await Appointment.findOne({
+      _id: req.params.id,
+    });
+
+    req.body.adminUser = appointmentUpdate.adminUser.concat({
+      user: req.user._id,
+    });
+    const appointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    await appointment
+      .populate('user adminUser.user', 'status firstName lastName')
+      .execPopulate();
+    res.json(appointment);
   } catch (error) {
     next(error);
   }
@@ -90,21 +125,26 @@ async function updateAppointment(req, res, next) {
 
 async function updateAppointmentProfile(req, res, next) {
   try {
-    const updatePatient = await Appointment.findOne({
+    const appointmentUpdate = await Appointment.findOne({
       _id: req.params.id,
       user: req.user._id,
     });
-    (updatePatient.description = req.body.description),
-      (updatePatient.status = req.body.status),
-      (updatePatient.date = req.body.date),
-      (updatePatient.time = req.body.time),
-      (updatePatient.adminUser = updatePatient.adminUser.concat({
-        notes: req.body.notes,
-        user: req.user._id,
-      }));
-    const patient = await updatePatient.save();
-    await patient.populate('user adminUser.user').execPopulate();
-    res.json(patient);
+
+    req.body.adminUser = appointmentUpdate.adminUser.concat({
+      user: req.user._id,
+    });
+
+    const appointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    await appointment
+      .populate('user adminUser.user', 'status firstName lastName')
+      .execPopulate();
+    res.json(appointment);
   } catch (error) {
     next(error);
   }
