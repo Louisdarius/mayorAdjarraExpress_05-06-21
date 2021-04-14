@@ -96,7 +96,7 @@ async function addUser(req, res, next) {
       return res.status(404).json({ error: 'Email already exist' });
     }
     console.log(password.length);
-    if (password.length <= 8) {
+    if (password.length < 8) {
       return res
         .status(404)
         .json({ errorPassword: 'Password must be minimum 8 characters' });

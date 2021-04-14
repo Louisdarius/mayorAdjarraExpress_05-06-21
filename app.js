@@ -14,7 +14,19 @@ const dotenv = require('dotenv').config(),
    */
   const LOCAL_URL = 'mongodb://localhost:27017/appointment';
   const URL =
-    'mongodb+srv://lawyerExpertUser:lawyerExpertUserPass@2021@cluster0.xrtgm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+    'mongodb+srv://mayorAppointmentUser:mayorAppointmentUser@2021@cluster0.ffhu4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+  try {
+    await mongoose.connect(URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+    });
+    console.log('Connected to database!');
+  } catch (error) {
+    console.error('Error connecting to the database:', error);
+    return;
+  }
 
   /**
    * Add middlewares
@@ -28,6 +40,13 @@ const dotenv = require('dotenv').config(),
    * Add API routes
    */
   app.use('', require('./routes/mainRoutes'));
+  app.use('/api/roles', require('./routes/roleRoutes'));
+  app.use('/api/users', require('./routes/userRoutes'));
+  app.use('/api/appointments', require('./routes/appointmentRoutes'));
+  app.use('/api/feedbacks', require('./routes/feedbackRoutes'));
+  app.use('/api/feedbackList', require('./routes/feedbackListRoutes'));
+  app.use('/api/news', require('./routes/newsListRoutes'));
+  app.use('/api/preferences', require('./routes/preferenceListRoutes'));
 
   /**
    * Start Express!
