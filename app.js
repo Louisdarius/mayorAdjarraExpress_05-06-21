@@ -14,7 +14,7 @@ const dotenv = require('dotenv').config(),
    */
   const LOCAL_URL = 'mongodb://localhost:27017/appointment';
   const URL =
-    'mongodb+srv://lawyerExpertUser:lawyerExpertUserPass@2021@cluster0.xrtgm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+    'mongodb+srv://llawyerExpertUser:lawyerExpertUserPass@2021@cluster0.xrtgm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
   try {
     await mongoose.connect(LOCAL_URL, {
