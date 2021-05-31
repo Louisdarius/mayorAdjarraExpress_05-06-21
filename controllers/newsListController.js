@@ -13,7 +13,7 @@ async function getAllNewsList(req, res, next) {
 }
 async function getAllNewsListLimit(req, res, next) {
   try {
-    const newsLists = await NewsList.find().sort({ createdAt: -1 }).limit(5);
+    const newsLists = await NewsList.find().sort({ createdAt: -1 }).limit(10);
     res.json(newsLists);
   } catch (error) {
     next(error);

@@ -4,23 +4,20 @@ const auth = require('../middleware/auth');
 const { adminAndReceptAuth, adminAuth } = require('../middleware/adminAuth');
 const multer = require('multer');
 var upload = multer({
-  limits: {
-    fieldSize: 1,
-  },
-  fileFilter(req, file, cb) {
-    if (file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-      return cb(new Error('Please upload image'));
-    }
-  },
+  //limits: {
+  //fieldSize: 1,
+  //},
 });
 
-Router.get('/', auth, adminAndReceptAuth, userController.getAllUsers);
+Router.get('/', userController.getAllUsers);
 Router.get('/me', auth, userController.getUserProfile);
 Router.get('/:id', auth, adminAndReceptAuth, userController.getEachUser);
 Router.get('/image/me', auth, userController.getImage);
 Router.post('/', userController.addUser);
 Router.post('/login', userController.login);
-Router.post('/changeUserPassword/:id', auth, userController.changeUserPassword);
+Router.post('/sendEmail', userController.sendEmail);
+Router.post('/sendCode', userController.sendCode);
+Router.post('/changeUserPassword/:id', userController.changeUserPassword);
 Router.post(
   '/changeUserProfilePassword',
   auth,
@@ -32,7 +29,7 @@ Router.put('/:id', auth, adminAndReceptAuth, userController.updateUser);
 Router.put('/profile/me', auth, userController.updateUserProfile);
 Router.put(
   '/profile/photo/me',
-  upload.single('userLogo'),
+  upload.single('image'),
   auth,
   userController.uploadImage
 );

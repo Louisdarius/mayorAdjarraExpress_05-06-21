@@ -5,6 +5,9 @@ const dotenv = require('dotenv').config(),
   fileUpload = require('express-fileupload'),
   cors = require('cors'),
   app = express();
+const { Expo } = require('expo-server-sdk');
+const expo = new Expo();
+let savedPushTokens = [];
 
 // seed();
 
@@ -16,7 +19,7 @@ const dotenv = require('dotenv').config(),
   const URL =
     'mongodb+srv://mayorAppointmentUser:mayorAppointmentUser@2021@cluster0.ffhu4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
   try {
-    await mongoose.connect(URL, {
+    await mongoose.connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
@@ -34,7 +37,7 @@ const dotenv = require('dotenv').config(),
   app.use(bodyParser.json());
   app.use(cors());
   app.use(express.static('public'));
-  app.use(fileUpload());
+  //app.use(fileUpload());
 
   /**
    * Add API routes
@@ -47,6 +50,7 @@ const dotenv = require('dotenv').config(),
   app.use('/api/feedbackList', require('./routes/feedbackListRoutes'));
   app.use('/api/news', require('./routes/newsListRoutes'));
   app.use('/api/preferences', require('./routes/preferenceListRoutes'));
+  app.use('/api/notifications', require('./routes/notificationRoutes'));
 
   /**
    * Start Express!

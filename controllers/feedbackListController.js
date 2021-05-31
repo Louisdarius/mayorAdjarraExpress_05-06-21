@@ -49,6 +49,7 @@ async function updateFeedbackList(req, res, next) {
         new: true,
       }
     );
+
     res.json(feedbackList);
   } catch (error) {
     next(error);

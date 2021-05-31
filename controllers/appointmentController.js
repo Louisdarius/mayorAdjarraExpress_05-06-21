@@ -1,4 +1,5 @@
 const Appointment = require('../models/appointmentModel');
+const NotoficationService = require('../services/notoficationService');
 
 /**
  * Gett all appointments controller
@@ -6,25 +7,17 @@ const Appointment = require('../models/appointmentModel');
 async function getAllAppointments(req, res, next) {
   try {
     const PER_PAGE = 50;
-    const { filter, status = null, meetingPref = null, page = 1 } = req.query;
+    const { filter, status = null, page = 1 } = req.query;
     // Build DB query
     let query = {};
 
-    if (filter) {
-      query = {
-        $or: [{ user: new RegExp(filter, 'gi') }],
-      };
-    }
+    // if (gender) {
+    //   query[`gender`] = gender;
+    // }
     if (status) {
-      query = {
-        $or: [{ status: new RegExp(status, 'gi') }],
-      };
+      query[`status`] = status;
     }
-    if (meetingPref) {
-      query = {
-        $or: [{ meetingPref: new RegExp(meetingPref, 'gi') }],
-      };
-    }
+
     // Count results
     const total = await Appointment.countDocuments(query);
 
@@ -32,7 +25,18 @@ async function getAllAppointments(req, res, next) {
       //.limit(PER_PAGE)
       //.skip((page - 1) * PER_PAGE)
       .sort({ date: -1 })
-      .populate('user adminUser.user', 'status firstName lastName');
+      .populate({
+        path: 'user',
+        select: 'firstName lastName status email tel',
+        match: {
+          $or: [
+            { firstName: new RegExp(filter, 'gi') },
+            { lastName: new RegExp(filter, 'gi') },
+            { email: new RegExp(filter, 'gi') },
+            { tel: new RegExp(filter, 'gi') },
+          ],
+        },
+      });
     res.json({ appointments, page, perPage: PER_PAGE, total });
   } catch (error) {
     next(error);
@@ -43,7 +47,7 @@ async function getAllAppointmentsProfile(req, res, next) {
   try {
     const appointments = await Appointment.find({
       user: req.user._id,
-    }).populate('user adminUser.user', 'status firstName lastName');
+    }).populate('user', 'status firstName lastName');
     res.json(appointments);
   } catch (error) {
     next(error);
@@ -117,6 +121,13 @@ async function updateAppointment(req, res, next) {
     await appointment
       .populate('user adminUser.user', 'status firstName lastName')
       .execPopulate();
+
+    NotoficationService.createNotification({
+      navigation: 'ViewAppointment',
+      action: `Restored patient`,
+      user: `${appointmentUpdate.user}`,
+      message: `message here`,
+    });
     res.json(appointment);
   } catch (error) {
     next(error);

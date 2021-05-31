@@ -1,4 +1,5 @@
 const Feedback = require('../models/feedbackModel');
+const NotoficationService = require('../services/notoficationService');
 
 /**
  * Gett all feedbacks controller
@@ -87,6 +88,12 @@ async function updateFeedback(req, res, next) {
       new: true,
     });
     await feedback.populate('user', 'status firstName lastName').execPopulate();
+    NotoficationService.createNotification({
+      navigation: 'ViewFeedback',
+      action: `Restored patient`,
+      user: `${feedback.user._id}`,
+      message: `message here`,
+    });
     res.json(feedback);
   } catch (error) {
     next(error);

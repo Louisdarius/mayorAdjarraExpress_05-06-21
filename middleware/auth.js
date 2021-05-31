@@ -12,16 +12,19 @@ const auth = async (req, res, next) => {
     const user = await User.findOne({
       _id: decoded._id,
       'tokens.token': token,
+      status: 'actif',
     });
 
     if (!user) {
-      throw new Error();
+      return res.status(404).json({ userNotFund: 'User not found' });
+      //throw new Error();
     }
     req.token = token;
     req.user = user;
     next();
   } catch (error) {
-    next(error);
+    return res.status(404).json({ tokenError: 'Token error' });
+    //next(error);
   }
 };
 

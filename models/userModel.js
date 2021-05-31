@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
       default: 'actif',
     },
     userLogo: {
-      type: Buffer,
+      type: String,
     },
     verificationCode: {
       type: String,
@@ -88,7 +88,7 @@ userSchema.methods.toJSON = function () {
 
   delete userObject.password;
   delete userObject.tokens;
-  delete userObject.userLogo;
+  //delete userObject.userLogo;
 
   return userObject;
 };
@@ -113,10 +113,6 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
 
-  if (user.status !== 'actif') {
-    throw new Error('user is not active');
-  }
-
   if (!user) {
     throw new Error('Unable to login Email');
   }
@@ -125,6 +121,10 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
   if (!isMatch) {
     throw new Error('Unable to login pass');
+  }
+
+  if (user.status !== 'actif') {
+    throw new Error('user is not active');
   }
 
   return user;
