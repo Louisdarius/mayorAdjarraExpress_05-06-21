@@ -240,6 +240,17 @@ async function logoutAll(req, res, next) {
  */
 async function updateUserProfile(req, res, next) {
   try {
+    if (req.user.email !== req.body.email) {
+      const email = req.body.email;
+      const confirmEmail = await User.findOne({ email });
+      if (!validator.isEmail(email)) {
+        return res.status(404).json({ error: 'Email is invalid' });
+      }
+      if (confirmEmail) {
+        return res.status(404).json({ error: 'Email already exist' });
+      }
+    }
+
     const user = await User.findByIdAndUpdate(req.user, req.body, {
       new: true,
     });
@@ -252,6 +263,17 @@ async function updateUserProfile(req, res, next) {
 
 async function updateUser(req, res, next) {
   try {
+    let userID = await User.findById(req.params.id);
+    if (userID.email !== req.body.email) {
+      const email = req.body.email;
+      const confirmEmail = await User.findOne({ email });
+      if (!validator.isEmail(email)) {
+        return res.status(404).json({ error: 'Email is invalid' });
+      }
+      if (confirmEmail) {
+        return res.status(404).json({ error: 'Email already exist' });
+      }
+    }
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
